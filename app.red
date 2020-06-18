@@ -4,43 +4,6 @@ connString: "hostaddr = '127.0.0.1' port='5432' dbname = 'testdb' user=postgres"
 
 ; https://github.com/postgres/postgres/blob/e78b93094518b1e262cba8115470f252dde6f446/src/interfaces/libpq/libpq-fe.h#L54
 ; PGresult success is: PGRES_TUPLES_OK or PGRES_SINGLE_TUPLE
-	single-row-data!: alias struct! [
-		f1   [c-string!]
-		f2   [c-string!]
-		f3   [c-string!]
-		f4   [c-string!]
-		f5   [c-string!]
-		f6   [c-string!]
-		f7   [c-string!]
-		f8   [c-string!]
-		f9   [c-string!]
-		f10  [c-string!]
-		f11  [c-string!]
-		f12  [c-string!]
-	] 
-
-	all-row-data!: alias struct! [
-		r1   [single-row-data!]
-		r2   [single-row-data!]
-		r3   [single-row-data!]
-		r4   [single-row-data!]
-		r5   [single-row-data!]
-		r6   [single-row-data!]
-		r7   [single-row-data!]
-		r8   [single-row-data!]
-		r9   [single-row-data!]
-		r10  [single-row-data!]
-		r11  [single-row-data!]
-		r12  [single-row-data!]
-		r13  [single-row-data!]
-		r14  [single-row-data!]
-		r15  [single-row-data!]
-		r16  [single-row-data!]
-		r17  [single-row-data!]
-		r18  [single-row-data!]
-		r19  [single-row-data!]
-		r20  [single-row-data!]
-	] 	
 
 #enum ConnStatusType! [
 	CONNECTION_OK
