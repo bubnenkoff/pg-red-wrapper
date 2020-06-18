@@ -1,8 +1,47 @@
-Red/System []
-
+Red []
+#system [
 connString: "hostaddr = '127.0.0.1' port='5432' dbname = 'testdb' user=postgres"
 
 ; https://github.com/postgres/postgres/blob/e78b93094518b1e262cba8115470f252dde6f446/src/interfaces/libpq/libpq-fe.h#L54
+; PGresult success is: PGRES_TUPLES_OK or PGRES_SINGLE_TUPLE
+	single-row-data!: alias struct! [
+		f1   [c-string!]
+		f2   [c-string!]
+		f3   [c-string!]
+		f4   [c-string!]
+		f5   [c-string!]
+		f6   [c-string!]
+		f7   [c-string!]
+		f8   [c-string!]
+		f9   [c-string!]
+		f10  [c-string!]
+		f11  [c-string!]
+		f12  [c-string!]
+	] 
+
+	all-row-data!: alias struct! [
+		r1   [single-row-data!]
+		r2   [single-row-data!]
+		r3   [single-row-data!]
+		r4   [single-row-data!]
+		r5   [single-row-data!]
+		r6   [single-row-data!]
+		r7   [single-row-data!]
+		r8   [single-row-data!]
+		r9   [single-row-data!]
+		r10  [single-row-data!]
+		r11  [single-row-data!]
+		r12  [single-row-data!]
+		r13  [single-row-data!]
+		r14  [single-row-data!]
+		r15  [single-row-data!]
+		r16  [single-row-data!]
+		r17  [single-row-data!]
+		r18  [single-row-data!]
+		r19  [single-row-data!]
+		r20  [single-row-data!]
+	] 	
+
 #enum ConnStatusType! [
 	CONNECTION_OK
 	CONNECTION_BAD
@@ -99,38 +138,66 @@ connString: "hostaddr = '127.0.0.1' port='5432' dbname = 'testdb' user=postgres"
 	   ; Frees the storage associated with a PGresult. 
 	   ; Every command result should be freed via PQclear when it is no longer needed.
 	    free-result: "PQclear" [
-		PGresult [integer!] ; not connection but PGresult!
-		return: [ExecStatusType!] ; ExecStatusType
+		PGresult [integer!] 
 	   ]
+
+		; https://www.postgresql.org/docs/9.1/libpq-exec.html#LIBPQ-EXEC-MAIN
+	    ; extract information from a PGresult
+		; Returns the number of rows (tuples) in the query result
+		get-result-number-of-rows: "PQntuples" [
+		PGresult [integer!] ; not connection but PGresult!
+		return: [integer!] 
+	   ]	   
+
+	    ; extract information from a PGresult
+		; Returns the number of columns (fields) in each row of the query result.
+		get-result-number-of-field: "PQnfields" [
+		PGresult [integer!] ; not connection but PGresult!
+		return: [integer!] ; 
+	   ]	   
+
+	    ; extract information from a PGresult
+		; Returns the column name
+		get-result-column-name: "PQfname" [
+		PGresult [integer!] ; not connection but PGresult!
+		column_number [integer!]
+		return: [integer!] ; 
+	   ]	   	   
+
+	    ; extract information from a PGresult
+		; Returns a single field value of one row of a PGresult
+		; Row and column numbers start at 0
+		get-result-single-value: "PQgetvalue" [
+		PGresult [integer!] ; not connection but PGresult!
+		row_number [integer!]
+		column_number [integer!]
+		return: [c-string!] 
+		]
+
+	    ; extract information from a PGresult
+		; Returns the number of rows affected by the SQL command.
+		; This function returns a string containing the number of rows affected by the SQL statement
+		get-result-affected-number: "PQcmdTuples" [
+		PGresult [integer!] ; not connection but PGresult!
+		return: [c-string!] 
+		]		
+
+	    ; extract information from a PGresult
+		; Returns the OID of the inserted row
+		; Otherwise, this function returns InvalidOid
+		get-result-oid-inserted-row: "PQoidValue" [
+		PGresult [integer!] ; not connection but PGresult!
+		return: [integer!] ; Oid 
+		]		
+
+	    ; extract information from a PGresult
+		; Returns the data type associated with the given column number
+		get-result-columns-type: "PQftype" [
+		PGresult [integer!] ; not connection but PGresult!
+		column_number [integer!]
+		return: [integer!] ; Oid 
+		]	
 
    ]
 ]
-
-conn-obj: conn connString
-connect-status: get-connect-status conn-obj
-either not connect-status = CONNECTION_OK
-[
-	print "Can't connect"
-]
-[
-	print "Connected"
-]
-
-
-; sql-query: {SELECT "age", "id", "name" FROM "humans";}
-sql-query: {INSERT INTO "humans" ( "id", "age", "name") VALUES (5, 20, 'Mike');}
-result: exec-query conn-obj sql-query
-result-status: get-query-status result
-
-switch result-status [
-	PGRES_EMPTY_QUERY [print "Empty query string was executed"]
-	PGRES_COMMAND_OK [print "Query command that doesn't return anything was executed properly"]
-	PGRES_TUPLES_OK [print "A query command that returns tuples was executed properly by the backend"]
-	PGRES_COPY_OUT [print "Copy Out data transfer in progress"]
-	PGRES_COPY_IN [print "Copy In data transfer in progress"]
-	PGRES_BAD_RESPONSE [print "An unexpected response was recv'd from the backend"]
-	PGRES_NONFATAL_ERROR [print "Notice or warning message"]
-	PGRES_FATAL_ERROR [print "Query Fatal Error"]
-	PGRES_COPY_BOTH [print "Copy In/Out data transfer in progress"]
-	PGRES_SINGLE_TUPLE [print "Single tuple from larger resultset"]
 ]
